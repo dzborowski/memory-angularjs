@@ -1,0 +1,39 @@
+﻿#box {
+    width: 400px;
+    height: 400px;
+    margin: 50px;
+}
+
+.imgLogo {
+    width: 100px;
+    height: 100px;
+    float: left;
+}
+
+#timeBox {
+    width: 300px;
+    height: 30px;
+    background-color: white;
+    border: 2px solid black;
+}
+
+#time {
+    width: 300px;
+    height: 30px;
+    background-color: chartreuse;
+    float: left;
+    border-right: 1px solid black;
+}
+
+#timeCount {
+    width: 300px;
+    height: 30px;
+    position: absolute;
+    font-weight: bold;
+    padding-top: 5px;
+}
+#ww{
+    width: 100px;
+    height: 100px;
+    background-color: red;
+}

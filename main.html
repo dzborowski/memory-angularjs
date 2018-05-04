@@ -1,0 +1,12 @@
+<center>
+    <h2>Memory</h2>
+
+    <center ng-hide="tmpHide">
+
+        <img src="img/czolowa.png" alt="map" usemap="#map" id="mapaQ" />
+        <map id="#map" name="#map">
+            <area ng-repeat="x in tabLoad" shape="poly" coords="{{x.cords}}" href="{{x.href}}" alt="{{x.type}}" ng-click="load()" />
+        </map>
+
+    </center>
+</center>

@@ -1,0 +1,297 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
+    <link href="style.css" rel="stylesheet" />
+    <meta charset="utf-8" />
+    <title>Memory</title>
+</head>
+
+<body ng-app="myApp" ng-controller="MainController">
+
+
+    <div ng-view></div>
+
+    <script>
+        var app = angular.module("myApp", ["ngRoute"]);
+        app.config(function ($routeProvider, $locationProvider) {
+            $routeProvider
+            .when("/", {
+                templateUrl: "main.html"
+            })
+            .when("/page/30", {
+                templateUrl: "page.html",
+                controller: 'MainController',
+            })
+            .when("/page/60", {
+                templateUrl: "page.html",
+                controller: 'MainController',
+            })
+            .when("/page/90", {
+                templateUrl: "page.html",
+                controller: 'MainController',
+            })
+            .otherwise({ redirectTo: '/' });
+        });
+
+
+
+        app.controller('MainController', function ($scope, $route, $routeParams, $location, $timeout, $interval, $document) {
+
+            var tmpID = $location.path().split("/");
+            $scope.pageID = tmpID[2];
+            $scope.$route = $route;
+            $scope.$routeParams = $routeParams;
+            $scope.name = 'MainController';
+            $scope.params = $routeParams;
+
+
+            $scope.tmpHide = false;
+            $scope.tabLoad = [
+                { cords: '40,40,65,153,330,65', href: '', type: '30' },
+                { cords: '78,220,340,110,362,232', href: '', type: '60' },
+                { cords: '95,270,113,382,372,299', href: '', type: '90' },
+            ];
+
+            function shuffle(a) {
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+
+                return a;
+            }
+
+            $scope.tabX = [
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+                { 'src': "0.jpg", 'pos': 0, 'status': 0 },
+            ];
+            $scope.tabStart = [
+                { 'src': "1.jpg", 'pos': 1 },
+                { 'src': "2.jpg", 'pos': 1 },
+                { 'src': "3.jpg", 'pos': 1 },
+                { 'src': "4.jpg", 'pos': 1 },
+                { 'src': "5.jpg", 'pos': 1 },
+                { 'src': "6.jpg", 'pos': 1 },
+                { 'src': "7.jpg", 'pos': 1 },
+                { 'src': "8.jpg", 'pos': 1 },
+                { 'src': "1.jpg", 'pos': 2 },
+                { 'src': "2.jpg", 'pos': 2 },
+                { 'src': "3.jpg", 'pos': 2 },
+                { 'src': "4.jpg", 'pos': 2 },
+                { 'src': "5.jpg", 'pos': 2 },
+                { 'src': "6.jpg", 'pos': 2 },
+                { 'src': "7.jpg", 'pos': 2 },
+                { 'src': "8.jpg", 'pos': 2 },
+            ];
+            $scope.tabMix = shuffle($scope.tabStart);
+
+            // href
+            for (var i = 0; i < $scope.tabLoad.length; i++) {
+                var tmpHref = '#!page/' + $scope.tabLoad[i].type;
+                $scope.tabLoad[i].href = tmpHref;
+            }
+            //
+
+            $scope.tmpScore = [];
+            $scope.tabWin = [];
+
+            $scope.info = angular.element(document.querySelector('#info'));
+            $scope.x = [];
+            $scope.stop = false;
+            $scope.inter;
+            $scope.tmpWin = true;
+
+
+            $scope.startTime;
+            $scope.endTime;
+
+            var date = new Date($scope.pageID * 1000);
+
+            $scope.setTime = function (date) {
+
+                var min = Math.floor((date % (1000 * 60 * 60)) / (1000 * 60));
+                var sec = Math.floor((date % (1000 * 60)) / 1000);
+                var ms = date % 1000;
+                //console.log(ms);
+
+                if (min < 10) min = "0" + min;
+                if (sec < 10) sec = "0" + sec;
+                if (ms < 10) ms = "00" + ms;
+                if (ms >= 10 && ms < 100) ms = "0" + ms;
+
+                var setTime = min + ":" + sec + "." + ms;
+
+                return setTime;
+            }
+            $scope.currentTime = $scope.setTime(date);
+
+            $scope.newGame = function () {
+                $timeout(function () {
+
+                    $scope.tabMix = shuffle($scope.tabStart);
+                    for (var i = 0; i < $scope.tabX.length; i++) {
+                        $scope.tabX[i].src = '0.jpg';
+                        $scope.tabX[i].pos = 0;
+                        $scope.tabX[i].status = 0;
+                    }
+
+                    $scope.tmpScore = [];
+                    $scope.tabWin = [];
+                    $scope.x = [];
+                    $scope.stop = false;
+                    $scope.tmpWin = true;
+
+                    var time = angular.element(document.querySelector('#time'));
+                    time[0].style.backgroundColor = "chartreuse";
+                    time[0].style.width = "300px";
+
+                    $scope.info[0].innerHTML = '';
+                    $scope.currentTime = $scope.setTime(date);
+
+                    console.log("New");
+                }, 5000);
+            }
+
+
+            $scope.change_img = function (nr, src, pos) {
+                $scope.x.push(0);
+
+                if ($scope.tabWin.length == 16 || $scope.tmpWin == false) {
+                    if (confirm("Przejść do strony głównej?")) {
+                        window.location = "http://127.0.0.1/routing/";
+                    }
+                } else if ($scope.tmpWin == true) {
+
+                    if ($scope.tmpScore.length < 2) {
+                        if ($scope.tabX[nr].status == 0 && $scope.tabX[nr].status != 2) {
+                            if ($scope.tmpScore.length == 0) {
+
+                                $scope.tabX[nr].status = 1;
+                                $scope.tabX[nr].src = $scope.tabMix[nr].src;
+                                $scope.tabX[nr].pos = $scope.tabMix[nr].pos;
+
+                                $scope.tmpScore.push({ 'src': $scope.tabX[nr].src, 'pos': $scope.tabX[nr].pos, 'id': nr });
+
+                            } else if ($scope.tmpScore.length == 1) {
+
+                                $scope.tabX[nr].src = $scope.tabMix[nr].src;
+                                $scope.tabX[nr].pos = $scope.tabMix[nr].pos;
+                                $scope.tmpScore.push({ 'src': $scope.tabX[nr].src, 'pos': $scope.tabX[nr].pos, 'id': nr });
+
+                                if ($scope.tmpScore[0].src == $scope.tmpScore[1].src && $scope.tmpScore[0].pos != $scope.tmpScore[1].pos) {
+                                    if ($scope.tabWin.length == 14) {
+                                        $scope.info[0].innerHTML = "Wygrałeś - Nowa gra rozpocznie się za 5s";
+                                        $scope.stop = true;
+                                    }
+                                    $scope.tabX[nr].status = 2;
+                                    $scope.tabWin.push($scope.tmpScore[0].src, $scope.tmpScore[1].src);
+                                    $scope.tmpScore = [];
+
+                                } else {
+                                    $scope.tabX[nr].status = 1;
+                                    $timeout(function () {
+                                        for (var i = 0; i < $scope.tmpScore.length; i++) {
+                                            if ($scope.tabX[nr].status != 2) {
+                                                $scope.tabX[$scope.tmpScore[i].id].status = 0;
+                                                $scope.tabX[$scope.tmpScore[i].id].src = "0.jpg";
+                                            }
+                                        }
+                                        $scope.tmpScore = [];
+                                    }, 500);
+                                }
+                            }
+                        }
+                    }
+
+                }
+                //console.log($scope.tmpScore);
+            }
+
+            $scope.load = function (x) {
+                $scope.tmpHide = true;
+            }
+        })
+
+        //directive
+        app.directive("playfield", function () {
+            return {
+                templateUrl: 'playfield.html'
+            };
+        });
+        app.directive("time", function ($interval, $timeout) {
+            return {
+                templateUrl: 'time.html',
+                link: function ($scope) {
+
+                    $scope.$watchCollection('x', function () {
+
+                        var time = angular.element(document.querySelector('#time'));
+                        if ($scope.x.length == 1) {
+                            //
+                            $scope.startTime = new Date().getTime();
+                            $scope.endTime = $scope.startTime + ($scope.pageID * 1000);
+                            //
+
+                            $scope.inter = $interval(function () {
+                                var accTime = new Date().getTime();
+                                var gameTime = $scope.endTime - accTime;
+                                $scope.currentTime = $scope.setTime(gameTime);
+
+                                var e = new Date(gameTime).getTime();
+                                var w = new Date($scope.pageID * 1000).getTime();
+                                var accWidth = 300 * (e / w);
+
+                                if (Math.floor((e / w) * 100) == 20) time[0].style.backgroundColor = "#ffcdd2";
+
+
+                                if (gameTime < 0 && $scope.stop == false) {
+                                    $interval.cancel($scope.inter);
+                                    $scope.inter = undefined;
+                                    $scope.info[0].innerHTML = "Przegrałeś - Nowa gra rozpocznie się za 5s";
+                                    $scope.currentTime = "00:00:000";
+                                    time[0].style.width = "0px";
+                                    $scope.tmpWin = false;
+
+                                    $scope.newGame();
+
+                                } else if (gameTime >= 0) {
+                                    time[0].style.width = accWidth + "px";
+                                }
+
+                                if ($scope.stop == true) {
+                                    $interval.cancel($scope.inter);
+                                    $scope.inter = undefined;
+
+                                    $scope.newGame();
+                                }
+
+                            }, 50);
+                        }
+
+                    });
+
+                }
+            };
+        });
+
+
+    </script>
+</body>
+</html>
